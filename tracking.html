@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tracking DO | SITTA</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>SITTA - Tracking Delivery Order</h1>
+      <p>Simulasi pencatatan dan pencarian pengiriman bahan ajar.</p>
+      <nav>
+        <a href="index.html">Beranda</a><a href="stok.html">Stok Bahan Ajar</a
+        ><a class="active" href="tracking.html">Tracking DO</a>
+      </nav>
+    </header>
+    <main id="trackingApp">
+      <section class="panel">
+        <h2>Buat Delivery Order baru</h2>
+        <p class="muted">
+          Nomor DO dibuat sistem: <strong>{{ nomorDOBerikut }}</strong>
+        </p>
+        <div class="form-grid">
+          <label
+            >NIM<input
+              v-model.trim="form.nim"
+              placeholder="Contoh: 123456789" /></label
+          ><label>Nama mahasiswa<input v-model.trim="form.nama" /></label
+          ><label
+            >Ekspedisi<select v-model="form.ekspedisi">
+              <option value="">Pilih ekspedisi</option>
+              <option
+                v-for="item in pengirimanList"
+                :key="item.kode"
+                :value="item.kode"
+              >
+                {{ item.nama }}
+              </option>
+            </select></label
+          ><label
+            >Paket bahan ajar<select v-model="form.paket">
+              <option value="">Pilih paket</option>
+              <option v-for="item in paket" :key="item.kode" :value="item.kode">
+                {{ item.kode }} - {{ item.nama }}
+              </option>
+            </select></label
+          ><label
+            >Tanggal kirim<input type="date" v-model="form.tanggalKirim"
+          /></label>
+          <div>
+            <label>Total harga</label>
+            <p>
+              <strong
+                >{{ rupiah(paketTerpilih ? paketTerpilih.harga : 0) }}</strong
+              >
+            </p>
+          </div>
+          <div><button type="button" @click="buatDO">Buat DO</button></div>
+        </div>
+        <p v-if="pesanForm" class="notice error">{{ pesanForm }}</p>
+        <p v-if="sukses" class="notice success" v-text="sukses"></p>
+        <div class="detail-box" v-if="paketTerpilih">
+          <strong>{{ paketTerpilih.kode }} - {{ paketTerpilih.nama }}</strong
+          ><br />Kode bahan ajar:
+          <span v-text="paketTerpilih.isi.join(', ')"></span>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Cari tracking DO</h2>
+        <label
+          >Nomor DO<input
+            v-model.trim="kataKunci"
+            list="daftar-do"
+            placeholder="Misalnya DO2025-0001" /></label
+        ><datalist id="daftar-do">
+          <option
+            v-for="(item, nomor) in tracking"
+            :key="nomor"
+            :value="nomor"
+          ></option>
+        </datalist>
+        <div class="detail-box" v-if="kataKunci && doTerpilih">
+          <h3>{{ kataKunci }}</h3>
+          <p>
+            <strong>{{ doTerpilih.nama }}</strong> (NIM: {{ doTerpilih.nim }})
+          </p>
+          <p>
+            Status: <span class="status aman" v-text="doTerpilih.status"></span
+            ><br />Ekspedisi: {{ labelEkspedisi(doTerpilih.ekspedisi) }}<br />Tanggal
+            kirim: {{ doTerpilih.tanggalKirim }}<br />Paket: {{
+            namaPaket(doTerpilih.paket) }}<br />Total: {{
+            rupiah(doTerpilih.total) }}
+          </p>
+          <h3>Riwayat perjalanan</h3>
+          <ul
+            class="timeline"
+            v-if="doTerpilih.perjalanan && doTerpilih.perjalanan.length"
+          >
+            <li v-for="(riwayat, index) in doTerpilih.perjalanan" :key="index">
+              <time>{{ riwayat.waktu }}</time>{{ riwayat.keterangan }}
+            </li>
+          </ul>
+          <p v-else class="muted">Riwayat perjalanan belum tersedia.</p>
+        </div>
+        <p class="notice error" v-else-if="kataKunci && !doTerpilih">
+          Nomor DO tidak ditemukan. Periksa kembali nomor yang dimasukkan.
+        </p>
+        <p class="muted" v-else>
+          Masukkan atau pilih nomor DO untuk melihat detail pengiriman.
+        </p>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <script src="js/dataBahanAjar.js"></script>
+    <script src="js/tracking-app.js"></script>
+  </body>
+</html>
